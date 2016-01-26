@@ -1,6 +1,8 @@
 
 var Qoca = {};
 
+var isWaitForNativeCallback = false;
+
 function _waitNativeAction(action, callback, data) {
   var iframe = document.createElement('iframe');
   var req = encodeURIComponent(action) + '$' + encodeURIComponent(callback);
@@ -11,18 +13,26 @@ function _waitNativeAction(action, callback, data) {
   iframe.setAttribute( 'src', 'js://' + req );
   iframe.style.display = 'none';
   document.documentElement.appendChild(iframe);
-  iframe.parentNode.removeChild(iframe);
-  iframe = null;
+
+  setTimeout(function (){  
+    iframe.parentNode.removeChild(iframe);
+    iframe = null;
+    isWaitForNativeCallback = false;
+    }, 80);
 }
 
 Qoca.getUserInfo = function(callback) {
   console.log('start to wait for native response session: '+callback);
   var retrieveCb = {callback: 'callBackFromNative'}; 
-  if(window.QOCAJSInterface) {
-    window.QOCAJSInterface.retrieveUserInfo(JSON.stringify(retrieveCb));
+
+  if(!isWaitForNativeCallback) {
+    isWaitForNativeCallback = true;
+    if(window.QOCAJSInterface) {
+      window.QOCAJSInterface.retrieveUserInfo(JSON.stringify(retrieveCb));
+    }
+    window.callBackFromNative = callback;
+    _waitNativeAction('getUserInfo', callback);
   }
-  window.callBackFromNative = callback;
-  _waitNativeAction('getUserInfo', callback);
 }
 
 var module = {};
