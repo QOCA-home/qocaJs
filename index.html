@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+<body onload="testQOCA()">
+  <p id="demo"></p>
+  <button onclick="testGetUserInfo()">GetUserInfo</button>
+  <button onclick="testUsageLog()">UsageLog</button>
+  <script src="qoca.js"></script>
+  <script>
+  	function testQOCA() {
+		Qoca.init();
+	}
+
+
+	function testCallback(data) {
+	    try {
+	    	document.getElementById("demo").innerHTML = data ;
+		    var jsonObject = JSON.parse(data);
+			if (jsonObject)
+			{
+				if (jsonObject.id)
+					document.getElementById("demo").innerHTML = "id=" + jsonObject.id;
+				//document.getElementById("demo").innerHTML += " ==> id=" + jsonObject.id;
+			}
+		}
+		catch(err) {
+		    document.getElementById("demo").innerHTML = err.message + " <br> data = " + data;
+		}
+	}
+
+	function testGetUserInfo() {
+		document.getElementById("demo").innerHTML = "";
+    	Qoca.getUserInfo(testCallback);
+	}
+	
+	function testUsageLog() {
+    	document.getElementById("demo").innerHTML = Qoca.uuid + "/" + Qoca.sid ;
+		//appName, version, startValue, tag
+		Qoca.usageLog("baycro","1.0.0","post title",["post","view"],"toggle",testCallback);
+		Qoca.usageLog("baycro","1.0.0","post title",["post","youtube"],"toggle",testCallback);
+		Qoca.usageLog("baycro","1.0.0","post title",["post","link"],"toggle",testCallback);
+	}
+  </script>
+</body>
+</html>
